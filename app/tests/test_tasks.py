@@ -5,6 +5,7 @@ from app.main import app
 from app.db.repositories.base import TaskRepositoryPort
 from app.services.typing import get_task_repo 
 from typing import Optional, List, Dict
+from datetime import datetime, timezone
 
 
 class InMemoryRepo(TaskRepositoryPort):
@@ -17,13 +18,19 @@ class InMemoryRepo(TaskRepositoryPort):
         if completed is not None:
             items = [x for x in items if x.get("completed", False) is completed]
         return items[skip: skip + limit]
-
+    
     async def create(self, data: dict):
-        self._auto += 1
-        _id = str(self._auto)
-        obj = {"id": _id, "completed": False, **data}
-        self.items[_id] = obj
-        return obj
+            self._auto += 1
+            _id = str(self._auto)
+            obj = {
+                "id": _id,
+                "title": data["title"],
+                "description": data.get("description"),
+                "completed": False,
+                "creation_date": datetime.now(timezone.utc),
+            }
+            self.items[_id] = obj
+            return obj
 
     async def set_completed(self, task_id: str, completed: bool):
         if task_id not in self.items:
@@ -33,6 +40,17 @@ class InMemoryRepo(TaskRepositoryPort):
 
     async def delete(self, task_id: str):
         self.items.pop(task_id, None)
+
+
+    async def update_fields(self, task_id: str, data: Dict) -> Dict:
+        if task_id not in self.items:
+            raise KeyError
+        # aplica solo las claves presentes (como PATCH)
+        for k, v in data.items():
+            if v is None:
+                continue
+            self.items[task_id][k] = v
+        return self.items[task_id]
 
 _repo_singleton = InMemoryRepo()
 

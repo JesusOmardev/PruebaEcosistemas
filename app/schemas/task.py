@@ -8,8 +8,9 @@ class TaskBase(BaseModel):
     description: Optional[str] = Field(None, max_length=1000)
 
 
-class TaskCreate(TaskBase):
-    creation_date: datetime = Field(default_factory=datetime.utcnow)
+class TaskCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=1000)
 
 
 class TaskOut(TaskBase):
@@ -20,3 +21,7 @@ class TaskOut(TaskBase):
 
 class TaskUpdateStatus(BaseModel):
     completed: bool
+
+class TaskPatch(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=200)
+    description: Optional[str] = Field(None, max_length=1000)
