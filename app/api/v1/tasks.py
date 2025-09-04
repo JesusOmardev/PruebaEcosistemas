@@ -49,11 +49,15 @@ async def delete_task(
     return None
 
 @router.patch("/{task_id}", response_model=TaskOut)
-async def patch_task(task_id: str, body: TaskPatch, service: TaskService = Depends(lambda repo=Depends(get_task_repo): TaskService(repo))):
+async def patch_task(
+    task_id: str,
+    body: TaskPatch,
+    service: TaskService = Depends(lambda repo=Depends(get_task_repo): TaskService(repo)),
+):
     data = body.model_dump(exclude_none=True)
     if not data:
         raise HTTPException(status_code=400, detail="Nothing to update")
     try:
-        return await service.update_fields(task_id, data)  # nuevo método
+        return await service.update_fields(task_id, data)
     except KeyError:
         raise HTTPException(status_code=404, detail="Task not found")

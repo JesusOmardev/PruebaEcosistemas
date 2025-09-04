@@ -2,6 +2,8 @@ from typing import List, Dict, Optional
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 from .base import TaskRepositoryPort
+from datetime import datetime, timezone
+
 
 class TaskRepository(TaskRepositoryPort):
     def __init__(self, col: AsyncIOMotorCollection):
@@ -26,7 +28,7 @@ class TaskRepository(TaskRepositoryPort):
                 "title": data["title"],
                 "description": data.get("description"),
                 "completed": False,
-                "creation_date": datetime.now(timezone.utc),  # 👈 añade esto
+                "creation_date": datetime.now(timezone.utc)
             }
             res = await self.col.insert_one(payload)
             doc = await self.col.find_one({"_id": res.inserted_id})

@@ -45,7 +45,7 @@ class InMemoryRepo(TaskRepositoryPort):
     async def update_fields(self, task_id: str, data: Dict) -> Dict:
         if task_id not in self.items:
             raise KeyError
-        # aplica solo las claves presentes (como PATCH)
+        # aplica solo las claves presentes (PATCH)
         for k, v in data.items():
             if v is None:
                 continue
@@ -81,7 +81,7 @@ def test_create_requires_title_422(client):
     r = client.post("/api/v1/tasks/", json={"description": "sin titulo"})
     assert r.status_code == 422
     data = r.json()
-    # Nuestro handler de validación devuelve esta forma
+    # Handler de validación devuelve esta forma
     assert "error" in data and data["error"] in ("ValidationError", "Unprocessable Entity")
     assert "detail" in data
 
@@ -102,12 +102,12 @@ def test_create_response_shape_and_defaults(client):
     assert set(("id", "title", "completed", "creation_date")).issubset(data.keys())
     assert data["title"] == "Nueva"
     assert data["completed"] is False
-    # creation_date debe ser ISO 8601 parseable
+    # creation_date debe ser parseable
     from datetime import datetime
     datetime.fromisoformat(data["creation_date"].replace("Z", "+00:00"))
 
 def test_update_nonexistent_returns_404(client):
-    # En tests usamos repo in-memory; un id que no existe lanza KeyError -> 404
+    # En tests usamos repo in-memory. Un id que no existe lanza KeyError 404
     r = client.put("/api/v1/tasks/9999", json={"completed": True})
     assert r.status_code == 404
 

@@ -8,15 +8,21 @@ from .db.mongodb import connect, disconnect, ensure_indexes
 
 app = FastAPI(title=config.APP_NAME)
 
+# --- CORS DEV ---
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost",
+    "http://127.0.0.1",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=config.CORS_ORIGINS,
+    allow_origins=ALLOWED_ORIGINS,  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    )
-
+)
 
 app.include_router(tasks_router, prefix=config.API_PREFIX)
 

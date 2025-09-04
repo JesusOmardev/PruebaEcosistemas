@@ -15,8 +15,10 @@ class TaskCreate(BaseModel):
 
 class TaskOut(TaskBase):
     id: str
+    title: str
+    description: Optional[str] = None
     completed: bool
-    creation_date: datetime
+    creation_date: datetime 
 
 
 class TaskUpdateStatus(BaseModel):
