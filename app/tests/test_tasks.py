@@ -4,14 +4,18 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.db.repositories.base import TaskRepositoryPort
 from app.services.typing import get_task_repo 
+from typing import Optional, List, Dict
+
 
 class InMemoryRepo(TaskRepositoryPort):
     def __init__(self):
         self.items = {}
         self._auto = 0
 
-    async def list(self, skip=0, limit=100):
+    async def list(self, skip: int = 0, limit: int = 100, completed: Optional[bool] = None) -> List[Dict]:
         items = list(self.items.values())
+        if completed is not None:
+            items = [x for x in items if x.get("completed", False) is completed]
         return items[skip: skip + limit]
 
     async def create(self, data: dict):
@@ -37,6 +41,8 @@ def _override_repo():
     return _repo_singleton
 
 app.dependency_overrides[get_task_repo] = _override_repo
+app.router.on_startup.clear()
+app.router.on_shutdown.clear()
 
 # Limpiar repo antes de cada test (no entre requests)
 @pytest.fixture(autouse=True)

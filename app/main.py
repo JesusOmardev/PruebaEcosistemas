@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .core import config
 from .core.errors import validation_exception_handler
 from .api.v1.tasks import router as tasks_router
-from .db.mongodb import connect, disconnect
+from .db.mongodb import connect, disconnect, ensure_indexes
 
 
 app = FastAPI(title=config.APP_NAME)
@@ -24,7 +24,7 @@ app.include_router(tasks_router, prefix=config.API_PREFIX)
 @app.on_event("startup")
 async def on_startup():
     await connect()
-
+    await ensure_indexes()
 
 @app.on_event("shutdown")
 async def on_shutdown():

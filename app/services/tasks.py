@@ -1,12 +1,12 @@
 from ..db.repositories.base import TaskRepositoryPort
 from ..schemas.task import TaskCreate
+from typing import Optional
 
 class TaskService:
     def __init__(self, repo: TaskRepositoryPort):
         self.repo = repo
-
-    async def list(self, skip: int = 0, limit: int = 100):
-        return await self.repo.list(skip=skip, limit=limit)
+    async def list(self, skip: int = 0, limit: int = 100, completed: Optional[bool] = None):
+        return await self.repo.list(skip=skip, limit=limit, completed=completed)
 
     async def create(self, data: TaskCreate):
         # Pydantic v2

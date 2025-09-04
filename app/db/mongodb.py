@@ -1,5 +1,4 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from . import repositories 
 from ..core import config
 
 _client: AsyncIOMotorClient | None = None
@@ -22,6 +21,9 @@ async def disconnect() -> None:
         _client.close()
         _client = None
 
+    col = get_tasks_collection()
+    await col.create_index("creation_date")
+    await col.create_index("completed")
 
 def get_db():
     return get_client()[config.MONGO_DB]
@@ -29,3 +31,14 @@ def get_db():
 
 def get_tasks_collection():
     return get_db()["tasks"]
+
+
+async def ensure_indexes() -> None:
+    # Si no hay cliente, por ejemplo  en tests con repo in-memory, salimos sin hacer nada
+    if _client is None:
+        return
+    db = _client[config.MONGO_DB]
+    col = db["tasks"]
+    # Índices básicos
+    await col.create_index("creation_date")
+    await col.create_index("completed")

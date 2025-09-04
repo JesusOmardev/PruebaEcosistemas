@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 from .base import TaskRepositoryPort
@@ -16,9 +16,11 @@ class TaskRepository(TaskRepositoryPort):
             "creation_date": doc.get("creation_date"),
         }
 
-    async def list(self, skip: int = 0, limit: int = 100) -> List[Dict]:
-        cursor = self.col.find({}).sort("creation_date", -1).skip(skip).limit(limit)
+    async def list(self, skip: int = 0, limit: int = 100, completed: Optional[bool] = None) -> List[Dict]:
+        q = {} if completed is None else {"completed": completed}
+        cursor = self.col.find(q).sort("creation_date", -1).skip(skip).limit(limit)
         return [self._to_out(d) async for d in cursor]
+
 
     async def create(self, data: Dict) -> Dict:
         payload = {**data}
